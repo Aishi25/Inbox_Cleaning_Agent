@@ -6,6 +6,7 @@ export default function App() {
   const [error, setError] = useState(null)
   const [loadingMsg, setLoadingMsg] = useState("")
   const [authed, setAuthed] = useState(false)
+  const [activeTab, setActiveTab] = useState("All")
 
   const loadingMsgs = [
     "Connecting to Gmail...",
@@ -98,7 +99,22 @@ export default function App() {
             </div>
           </div>
           <p style={{ fontSize: 13, color: "#666", marginBottom: 16 }}>These are Claude's suggestions - you decide what to do.</p>
-          {results.map((s, i) => (
+          {(() => {
+            const tabs = ["All", "Newsletters", "Marketing & promos", "Product updates", "Social", "All else"]
+            const filtered = activeTab === "All" ? results : results.filter(s => s.category === activeTab)
+            return (
+              <>
+                <div style={{ display: "flex", gap: 4, marginBottom: 16, borderBottom: "1px solid #eee" }}>
+                  {tabs.map(tab => {
+                    const count = tab === "All" ? results.length : results.filter(s => s.category === tab).length
+                    return (
+                      <button key={tab} onClick={() => setActiveTab(tab)} style={{ padding: "6px 12px", fontSize: 12, cursor: "pointer", border: "none", borderBottom: activeTab === tab ? "2px solid #000" : "2px solid transparent", background: "none", fontWeight: activeTab === tab ? 500 : 400, color: activeTab === tab ? "#000" : "#888" }}>
+                        {tab} ({count})
+                      </button>
+                    )
+                  })}
+                </div>
+                {filtered.map((s, i) => (
             <div key={i} style={{ border: "1px solid #eee", borderRadius: 12, padding: "12px 16px", marginBottom: 8, display: "flex", gap: 12, alignItems: "center" }}>
               <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#e8f0fe", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 500, color: "#1a73e8", flexShrink: 0 }}>
                 {initials(s.name)}
@@ -116,6 +132,9 @@ export default function App() {
               </div>
             </div>
           ))}
+            </>
+          )
+        })()}
         </div>
       )}
     </div>
