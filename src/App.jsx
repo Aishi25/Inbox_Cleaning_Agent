@@ -17,7 +17,7 @@ export default function App() {
   ]
 
   useEffect(() => {
-    fetch("http://localhost:3001/auth/status")
+    fetch("/auth/status")
       .then(r => r.json())
       .then(d => setAuthed(d.authed))
   }, [])
@@ -33,17 +33,14 @@ export default function App() {
       setLoadingMsg(loadingMsgs[msgIdx])
     }, 2500)
     try {
-      const response = await fetch("http://localhost:3001/scan", {
+      const response = await fetch("/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" }
       })
       if (!response.ok) throw new Error("Server error " + response.status)
       const data = await response.json()
-      const textBlock = data.content.find(b => b.type === "text")
-      if (!textBlock) throw new Error("No response from Claude")
-      const clean = textBlock.text.replace(/```json|```/g, "").trim()
-      const parsed = JSON.parse(clean)
-      setResults(parsed.senders || [])
+      if (data.error) throw new Error(data.error)
+      setResults(data.senders || [])
     } catch (err) {
       setError(err.message)
     } finally {
@@ -118,12 +115,12 @@ export default function App() {
             <button
               onClick={startScan}
               disabled={isScanning}
-              style={{ fontSize: 20, padding: "12px 28px", borderRadius: 8, border: "none", background: isScanning ? "#ccc" : "#5C3D2E", color: "#fff", fontWeight: 600, cursor: isScanning ? "default" : "pointer", display: "flex", alignItems: "center", gap: 5 }}
+              style={{ fontSize: 16, padding: "12px 28px", borderRadius: 8, border: "none", background: isScanning ? "#ccc" : "#5C3D2E", color: "#fff", fontWeight: 600, cursor: isScanning ? "default" : "pointer", display: "flex", alignItems: "center", gap: 5 }}
             >
               {isScanning ? "Scanning..." : "↻  Scan Inbox"}
             </button>
           ) : (
-            <a href="http://localhost:3001/auth/login" style={{ textDecoration: "none" }}>
+            <a href="/auth/login" style={{ textDecoration: "none" }}>
               <button style={{ fontSize: 14, padding: "12px 28px", borderRadius: 8, border: "none", background: "#5C3D2E", color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                 Sign in with Google
               </button>
@@ -172,8 +169,13 @@ export default function App() {
                         <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 3, flexWrap: "wrap" }}>
                           <span style={{ fontWeight: 600, fontSize: 15, color: "#111" }}>{s.name}</span>
                           <span style={{ fontSize: 11, padding: "2px 9px", borderRadius: 99, background: cat.bg, color: cat.color, fontWeight: 500 }}>{s.category}</span>
-                          <span style={{ fontSize: 11, padding: "2px 9px", borderRadius: 99, background: isUnsub ? "#167458" : "#EAF3DE", color: isUnsub ? "#fff" : "#27500A", fontWeight: 600 }}>
-                            {isUnsub ? "↓ Unsubscribe" : "✓ Keep"}
+                          <span
+                            onClick={() => {
+                              if (isUnsub && s.gmailUrl) window.open(s.gmailUrl, "_blank")
+                            }}
+                            style={{ fontSize: 11, padding: "2px 9px", borderRadius: 99, background: isUnsub ? "#167458" : "#EAF3DE", color: isUnsub ? "#fff" : "#27500A", fontWeight: 600, cursor: isUnsub ? "pointer" : "default" }}
+                          >
+                            {isUnsub ? "✉ Open in Gmail" : "✓ Keep"}
                           </span>
                         </div>
                         <div style={{ fontSize: 13, color: "#5C3D2E" }}>{s.email} · {s.emailCount} email{s.emailCount !== 1 ? "s" : ""} · {s.reason}</div>

@@ -1,14 +1,18 @@
 require("dotenv").config()
 const express = require("express")
 const cors = require("cors")
+const path = require("path")
 
 const app = express()
-app.use(cors({ origin: "http://localhost:5173" }))
+// Public base URL of this deployment (e.g. https://inbox-cleaner.onrender.com).
+// Defaults to localhost for local dev.
+const BASE_URL = process.env.BASE_URL || "http://localhost:3001"
+app.use(cors({ origin: BASE_URL }))
 app.use(express.json())
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
-const REDIRECT_URI = "http://localhost:3001/auth/callback"
+const REDIRECT_URI = `${BASE_URL}/auth/callback`
 
 let accessToken = null
 
@@ -32,26 +36,27 @@ app.get("/auth/callback", async (req, res) => {
   })
   const tokenData = await tokenRes.json()
   accessToken = tokenData.access_token
-  res.redirect("http://localhost:5173?authed=true")
+  res.redirect(`${BASE_URL}/?authed=true`)
 })
 
 app.get("/auth/status", (req, res) => {
   res.json({ authed: !!accessToken })
 })
 
+
 app.post("/scan", async (req, res) => {
   if (!accessToken) {
     return res.status(401).json({ error: "Not authenticated. Please log in first." })
   }
   try {
-    const listRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=50", {
+    const listRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=100", {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
     const listData = await listRes.json()
     const messageIds = listData.messages || []
-
+    console.log("Total messages fetched:", messageIds.length) //new
     const emails = await Promise.all(
-      messageIds.slice(0, 30).map(async (msg) => {
+      messageIds.slice(0, 100).map(async (msg) => {
         const msgRes = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject`, {
           headers: { Authorization: `Bearer ${accessToken}` }
         })
@@ -59,9 +64,17 @@ app.post("/scan", async (req, res) => {
         const headers = msgData.payload?.headers || []
         const from = headers.find(h => h.name === "From")?.value || ""
         const subject = headers.find(h => h.name === "Subject")?.value || ""
-        return { from, subject }
+        return { id: msg.id, from, subject }
       })
     )
+
+    // Build a map of sender email -> one message id (to later fetch body for unsubscribe link)
+    const senderMsgMap = {}
+    for (const e of emails) {
+      const emailMatch = e.from.match(/<([^>]+)>/) || e.from.match(/(\S+@\S+)/)
+      const senderEmail = emailMatch ? emailMatch[1].toLowerCase() : e.from.toLowerCase()
+      if (!senderMsgMap[senderEmail]) senderMsgMap[senderEmail] = e.id
+    }
 
     const emailSummary = emails.map(e => `From: ${e.from} | Subject: ${e.subject}`).join("\n")
 
@@ -74,18 +87,40 @@ app.post("/scan", async (req, res) => {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
-        max_tokens: 2000,
-        system: "You are an inbox cleanup assistant. Analyze the list of emails and identify which senders look like subscriptions, newsletters, or marketing emails the user probably doesn't need. Respond ONLY with a valid JSON object, no preamble, no markdown: {\"senders\": [{\"name\": \"Sender name\", \"email\": \"sender@example.com\", \"category\": \"Newsletters\", \"emailCount\": 5, \"recommendation\": \"unsubscribe\", \"reason\": \"One short sentence\"}]}. Only include subscription/automated senders, not personal or work emails. Max 15 senders, ranked by most emails first. For the category field, you MUST use exactly one of these five values: 'Newsletters', 'Marketing & promos', 'Product updates', 'Social', 'All else'.",        messages: [{ role: "user", content: `Here are the emails from my inbox:\n\n${emailSummary}\n\nWhich senders should I unsubscribe from?` }]
+        max_tokens: 4096,
+        system: "You are an inbox cleanup assistant. Analyze the list of emails and identify which senders look like subscriptions, newsletters, or marketing emails the user probably doesn't need. Respond ONLY with a valid JSON object, no preamble, no markdown: {\"senders\": [{\"name\": \"Sender name\", \"email\": \"sender@example.com\", \"category\": \"Newsletters\", \"emailCount\": 5, \"recommendation\": \"unsubscribe\", \"reason\": \"One short sentence\"}]}. Only include subscription/automated senders, not personal or work emails. Max 15 senders, ranked by most emails first. For the category field, you MUST use exactly one of these five values: 'Newsletters', 'Marketing & promos', 'Product updates', 'Social'.",
+        messages: [{ role: "user", content: `Here are the emails from my inbox:\n\n${emailSummary}\n\nWhich senders should I unsubscribe from?` }]
       })
     })
 
     const claudeData = await claudeRes.json()
     console.log("Claude response:", JSON.stringify(claudeData, null, 2))
-    res.json(claudeData)
+
+    const textBlock = claudeData.content?.find(b => b.type === "text")
+    if (!textBlock) return res.status(500).json({ error: "No response from Claude" })
+
+    const parsed = JSON.parse(textBlock.text.replace(/```json|```/g, "").trim())
+
+    // Deep-link to the most recent email from each sender in Gmail
+    for (const sender of parsed.senders || []) {
+      const key = sender.email.toLowerCase()
+      const msgId = senderMsgMap[key]
+      sender.gmailUrl = msgId
+        ? `https://mail.google.com/mail/u/0/#inbox/${msgId}`
+        : `https://mail.google.com/mail/u/0/#search/from%3A${encodeURIComponent(sender.email)}`
+    }
+
+    res.json(parsed)
   } catch (err) {
     console.log("Error:", err.message)
     res.status(500).json({ error: err.message })
   }
 })
 
-app.listen(3001, () => console.log("Backend running on http://localhost:3001"))
+// Serve the built React frontend (vite build output) and let client routing fall through
+const distPath = path.join(__dirname, "dist")
+app.use(express.static(distPath))
+app.get(/^(?!\/(auth|scan)).*/, (req, res) => res.sendFile(path.join(distPath, "index.html")))
+
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => console.log(`Server running on ${BASE_URL} (port ${PORT})`))
