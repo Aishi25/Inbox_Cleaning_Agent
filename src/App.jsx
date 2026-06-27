@@ -32,6 +32,10 @@ export default function App() {
         setAuthed(d.authed)
         if (!d.authed) setShowWelcome(true)
       })
+    // Strip the ?authed=true that Google's OAuth redirect leaves in the URL
+    if (window.location.search) {
+      window.history.replaceState({}, "", window.location.pathname)
+    }
   }, [])
 
   async function startScan() {
