@@ -233,7 +233,9 @@ export default function App() {
               <div style={{ display: "flex", gap: 6, marginTop: 12 }}>
                 {scanStages.map((label, i) => (
                   <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-                    <div style={{ width: 13, height: 13, transform: "rotate(45deg)", background: i < scanStage ? "#1D9E75" : "#EAF0EC", border: i === scanStage ? "2px solid #1D9E75" : "none", boxSizing: "border-box" }} />
+                    <svg width="16" height="16" viewBox="0 0 16 16" style={{ transform: i === scanStage ? "scale(1.25)" : "scale(1)", transition: "transform 0.3s" }}>
+                      <path d="M8,0 L9.6,6.4 L16,8 L9.6,9.6 L8,16 L6.4,9.6 L0,8 L6.4,6.4 Z" fill={i < scanStage ? "#1D9E75" : i === scanStage ? "#5DCAA5" : "#D7E2DC"} />
+                    </svg>
                     <span style={{ fontSize: 9.5, color: i <= scanStage ? "#0a3d2e" : "#aaa", textAlign: "center", lineHeight: 1.2 }}>{label}</span>
                   </div>
                 ))}
