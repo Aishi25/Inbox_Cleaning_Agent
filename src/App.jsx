@@ -12,8 +12,8 @@ export default function App() {
 
   const scanStages = [
     "Connecting to Gmail",
-    "Fetching your recent emails",
-    "Claude is reading through senders",
+    "Fetching recent emails",
+    "Reading through senders",
     "Spotting subscriptions",
     "Wrapping up"
   ]
@@ -233,9 +233,7 @@ export default function App() {
               <div style={{ display: "flex", gap: 6, marginTop: 12 }}>
                 {scanStages.map((label, i) => (
                   <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-                    <div style={{ width: 14, height: 14, borderRadius: "50%", background: i < scanStage ? "#1D9E75" : "#EAF0EC", color: "#fff", fontSize: 9, display: "flex", alignItems: "center", justifyContent: "center", border: i === scanStage ? "2px solid #1D9E75" : "none", boxSizing: "border-box" }}>
-                      {i < scanStage ? "✓" : ""}
-                    </div>
+                    <div style={{ width: 13, height: 13, transform: "rotate(45deg)", background: i < scanStage ? "#1D9E75" : "#EAF0EC", border: i === scanStage ? "2px solid #1D9E75" : "none", boxSizing: "border-box" }} />
                     <span style={{ fontSize: 9.5, color: i <= scanStage ? "#0a3d2e" : "#aaa", textAlign: "center", lineHeight: 1.2 }}>{label}</span>
                   </div>
                 ))}
