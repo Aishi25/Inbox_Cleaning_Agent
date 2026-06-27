@@ -150,8 +150,8 @@ export default function App() {
       )}
 
       {/* Sidebar */}
-      <div style={{ width: 200, background: "#0a3d2e", display: "flex", flexDirection: "column", padding: "28px 16px", flexShrink: 0 }}>
-        <div style={{ fontSize: 30, fontWeight: 700, color: "#fff", lineHeight: "1.2", marginBottom: 8 }}>Inbox<br/>Cleanup<br/>Agent</div>
+      <div style={{ width: 240, background: "#0a3d2e", display: "flex", flexDirection: "column", padding: "28px 16px", flexShrink: 0 }}>
+        <div style={{ fontSize: 30, fontWeight: 700, color: "#fff", lineHeight: "1.2", marginBottom: 8, textAlign: "center" }}>Inbox<br/>Cleanup<br/>Agent</div>
         <div style={{ fontSize: 11, color: "#5DCAA5", marginBottom: 32, display: "flex", alignItems: "center", gap: 5, justifyContent: "center" }}>
           <span style={{ width: 7, height: 7, borderRadius: "50%", background: authed ? "#5DCAA5" : "#888", display: "inline-block" }}></span>
           {authed ? "Gmail connected" : "Not connected"}
