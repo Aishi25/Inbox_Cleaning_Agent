@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 export default function App() {
   const [isScanning, setIsScanning] = useState(false)
@@ -38,19 +38,25 @@ export default function App() {
     }
   }, [])
 
+  const scanAbort = useRef(null)
+  const scanInterval = useRef(null)
+
   async function startScan() {
     setIsScanning(true)
     setError(null)
     setResults(null)
     setScanStage(0)
+    const controller = new AbortController()
+    scanAbort.current = controller
     // Advance through stages on a timer, holding at the last one until the request resolves
-    const interval = setInterval(() => {
+    scanInterval.current = setInterval(() => {
       setScanStage(s => (s < scanStages.length - 1 ? s + 1 : s))
     }, 1600)
     try {
       const response = await fetch("/scan", {
         method: "POST",
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal
       })
       if (!response.ok) throw new Error("Server error " + response.status)
       const data = await response.json()
@@ -58,11 +64,19 @@ export default function App() {
       setScanStage(scanStages.length)
       setResults(data.senders || [])
     } catch (err) {
-      setError(err.message)
+      if (err.name !== "AbortError") setError(err.message)
     } finally {
-      clearInterval(interval)
+      clearInterval(scanInterval.current)
+      scanAbort.current = null
       setIsScanning(false)
     }
+  }
+
+  function cancelScan() {
+    if (scanAbort.current) scanAbort.current.abort()
+    if (scanInterval.current) clearInterval(scanInterval.current)
+    setIsScanning(false)
+    setScanStage(0)
   }
 
   function dismissWelcome() {
@@ -74,6 +88,7 @@ export default function App() {
   }
 
   async function signOut() {
+    cancelScan()
     await fetch("/auth/logout", { method: "POST" })
     setAuthed(false)
     setResults(null)
