@@ -264,9 +264,9 @@ export default function App() {
                   { icon: "✂️", num: results.filter(s => s.recommendation === "unsubscribe").length, label: "to unsubscribe", bg: "#F5EBE0", color: "#5C3D2E" },
                   { icon: "🔍", num: results.reduce((acc, s) => acc + (s.emailCount || 0), 0), label: "emails scanned", bg: "#F1EFE8", color: "#444441" }
                 ].map(({ icon, num, label, bg, color }) => (
-                  <div key={label} style={{ display: "flex", alignItems: "center", gap: 10, background: bg, borderRadius: 99, padding: "10px 18px" }}>
-                    <span style={{ fontSize: 18 }}>{icon}</span>
-                    <span style={{ fontSize: 14, color }}><b>{num}</b> {label}</span>
+                  <div key={label} style={{ display: "flex", alignItems: "center", gap: 14, background: bg, borderRadius: 99, padding: "16px 30px" }}>
+                    <span style={{ fontSize: 28 }}>{icon}</span>
+                    <span style={{ fontSize: 19, color }}><b style={{ fontSize: 22 }}>{num}</b> {label}</span>
                   </div>
                 ))}
               </div>
