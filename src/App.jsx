@@ -260,9 +260,9 @@ export default function App() {
                   { num: results.filter(s => s.recommendation === "unsubscribe").length, label: "To unsubscribe", bg: "#F5EBE0", border: "#C4956A", numColor: "#5C3D2E" },
                   { num: results.reduce((acc, s) => acc + (s.emailCount || 0), 0), label: "Total emails scanned", bg: "#fff", border: "#e8e8e8", numColor: "#111" }
                 ].map(({ num, label, bg, border, numColor }) => (
-                  <div key={label} style={{ background: bg, border: `1px solid ${border}`, borderRadius: 10, padding: "16px 18px" }}>
+                  <div key={label} style={{ background: bg, border: `1px solid ${border}`, borderRadius: 10, padding: "16px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                     <div style={{ fontSize: 38, fontWeight: 700, color: numColor }}>{num}</div>
-                    <div style={{ fontSize: 13, color: "#5C3D2E", marginTop: 3 }}>{label}</div>
+                    <div style={{ fontSize: 15, color: "#5C3D2E", textAlign: "right" }}>{label}</div>
                   </div>
                 ))}
               </div>
@@ -273,25 +273,24 @@ export default function App() {
                   const cat = categoryColors[s.category] || { bg: "#f0f0f0", color: "#555" }
                   const isUnsub = s.recommendation === "unsubscribe"
                   return (
-                    <div key={i} style={{ background: "#fff", border: "1px solid #ececec", borderRadius: 12, padding: "22px 26px", display: "flex", gap: 18, alignItems: "flex-start" }}>
-                      <div style={{ width: 46, height: 46, borderRadius: "50%", background: cat.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700, color: cat.color, flexShrink: 0, marginTop: 2 }}>
+                    <div key={i} style={{ background: "#fff", border: "1px solid #ececec", borderRadius: 12, padding: "22px 26px", display: "flex", gap: 18, alignItems: "center", flexWrap: isMobile ? "wrap" : "nowrap" }}>
+                      <div style={{ width: 46, height: 46, borderRadius: "50%", background: cat.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700, color: cat.color, flexShrink: 0 }}>
                         {initials(s.name)}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 7, flexWrap: "wrap" }}>
                           <span style={{ fontWeight: 600, fontSize: 17, color: "#111" }}>{s.name}</span>
                           <span style={{ fontSize: 12, padding: "3px 11px", borderRadius: 99, background: cat.bg, color: cat.color, fontWeight: 500 }}>{s.category}</span>
-                          <span
-                            onClick={() => {
-                              if (isUnsub && s.gmailUrl) window.open(s.gmailUrl, "_blank")
-                            }}
-                            style={{ fontSize: 12, padding: "3px 11px", borderRadius: 99, background: isUnsub ? "#167458" : "#EAF3DE", color: isUnsub ? "#fff" : "#27500A", fontWeight: 600, cursor: isUnsub ? "pointer" : "default" }}
-                          >
-                            {isUnsub ? "✉ Open in Gmail" : "✓ Keep"}
-                          </span>
                         </div>
                         <div style={{ fontSize: 14, color: "#5C3D2E", lineHeight: 1.5 }}>{s.email} · {s.emailCount} email{s.emailCount !== 1 ? "s" : ""} · {s.reason}</div>
                       </div>
+                      <button
+                        onClick={() => { if (isUnsub && s.gmailUrl) window.open(s.gmailUrl, "_blank") }}
+                        disabled={!isUnsub}
+                        style={{ flexShrink: 0, fontSize: 14, fontWeight: 600, padding: "11px 20px", borderRadius: 9, border: "none", background: isUnsub ? "#167458" : "#EAF3DE", color: isUnsub ? "#fff" : "#27500A", cursor: isUnsub ? "pointer" : "default", whiteSpace: "nowrap", width: isMobile ? "100%" : "auto" }}
+                      >
+                        {isUnsub ? "✉ Open in Gmail" : "✓ Keep"}
+                      </button>
                     </div>
                   )
                 })}
