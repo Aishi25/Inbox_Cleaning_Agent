@@ -67,7 +67,8 @@ export default function App() {
     setAuthed(false)
     setResults(null)
     setError(null)
-    window.location.href = "/auth/login"
+    setActiveTab("All")
+    setShowWelcome(true)
   }
 
   function initials(name) {
@@ -172,7 +173,10 @@ export default function App() {
           )
         })}
 
-        <div style={{ marginTop: "auto", fontSize: 11, color: "#5DCAA5", paddingTop: 16, borderTop: "1px solid #1D9E75" }}>
+        <div style={{ marginTop: "auto", fontSize: 11, color: "#9FE1CB", fontWeight: 600, paddingBottom: 12 }}>
+          Tool created by Aishi Agarwal
+        </div>
+        <div style={{ fontSize: 11, color: "#5DCAA5", paddingTop: 16, borderTop: "1px solid #1D9E75" }}>
           {results ? `${results.length} senders found` : "No scan yet"}
         </div>
       </div>
