@@ -7,6 +7,7 @@ export default function App() {
   const [loadingMsg, setLoadingMsg] = useState("")
   const [authed, setAuthed] = useState(false)
   const [activeTab, setActiveTab] = useState("All")
+  const [showWelcome, setShowWelcome] = useState(true)
 
   const loadingMsgs = [
     "Connecting to Gmail...",
@@ -71,6 +72,47 @@ export default function App() {
 
   return (
     <div style={{ display: "flex", height: "100vh", fontFamily: "system-ui, sans-serif", background: "#f7f8f7" }}>
+
+      {/* Welcome modal */}
+      {showWelcome && (
+        <div
+          onClick={() => setShowWelcome(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(10, 61, 46, 0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20 }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ background: "#fff", borderRadius: 18, maxWidth: 460, width: "100%", padding: "32px 34px 24px", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}
+          >
+            <div style={{ fontSize: 38, marginBottom: 6 }}>📬✨</div>
+            <h2 style={{ fontSize: 23, fontWeight: 700, color: "#0a3d2e", margin: "0 0 6px" }}>Welcome to the Inbox Cleanup Agent</h2>
+            <p style={{ fontSize: 14, color: "#5C3D2E", margin: "0 0 22px", lineHeight: 1.5 }}>
+              Your inbox is a mess. We both know it. Let's fix that in three painless steps:
+            </p>
+
+            {[
+              { t: "Connect your Google account", d: "We promise we're only here to declutter — not to read your secrets (mostly)." },
+              { t: "Scan your inbox", d: "Claude sniffs out the newsletters, promos, and \"we miss you!\" emails clogging your inbox." },
+              { t: "Hit \"Unsubscribe\" to investigate", d: "We'll whisk you to that sender's latest email so YOU can decide if it deserves the boot. No regrets, no accidental goodbyes." },
+            ].map((step, i) => (
+              <div key={i} style={{ display: "flex", gap: 13, marginBottom: 16, alignItems: "flex-start" }}>
+                <div style={{ flexShrink: 0, width: 26, height: 26, borderRadius: "50%", background: "#0a3d2e", color: "#5DCAA5", fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</div>
+                <div>
+                  <div style={{ fontSize: 14.5, fontWeight: 600, color: "#111" }}>{step.t}</div>
+                  <div style={{ fontSize: 13, color: "#5C3D2E", lineHeight: 1.45 }}>{step.d}</div>
+                </div>
+              </div>
+            ))}
+
+            <button
+              onClick={() => setShowWelcome(false)}
+              style={{ width: "100%", marginTop: 8, fontSize: 15, fontWeight: 600, padding: "13px", borderRadius: 10, border: "none", background: "#5C3D2E", color: "#fff", cursor: "pointer" }}
+            >
+              Got it!
+            </button>
+            <div style={{ textAlign: "center", fontSize: 11, color: "#999", marginTop: 14 }}>Tool created by Aishi Agarwal</div>
+          </div>
+        </div>
+      )}
 
       {/* Sidebar */}
       <div style={{ width: 200, background: "#0a3d2e", display: "flex", flexDirection: "column", padding: "28px 16px", flexShrink: 0 }}>
