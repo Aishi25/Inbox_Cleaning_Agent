@@ -9,6 +9,13 @@ export default function App() {
   const [showWelcome, setShowWelcome] = useState(false)
   const [welcomeClosing, setWelcomeClosing] = useState(false)
   const [scanStage, setScanStage] = useState(0)
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth < 760)
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 760)
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [])
 
   const scanStages = [
     "Connecting to Gmail",
@@ -92,7 +99,7 @@ export default function App() {
   ]
 
   return (
-    <div style={{ display: "flex", height: "100vh", fontFamily: "system-ui, sans-serif", background: "#f7f8f7" }}>
+    <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", minHeight: "100vh", fontFamily: "system-ui, sans-serif", background: "#f7f8f7" }}>
 
       {/* Welcome modal */}
       {showWelcome && (
@@ -115,11 +122,11 @@ export default function App() {
             onClick={e => e.stopPropagation()}
             style={{ background: "#fff", borderRadius: 18, maxWidth: 640, width: "100%", padding: "32px 34px 24px", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
               <img src="/favicon.svg" alt="" width="42" height="42" />
-              <h2 style={{ fontSize: 23, fontWeight: 700, color: "#0a3d2e", margin: 0 }}>Welcome to the Inbox Cleanup Agent</h2>
+              <h2 style={{ fontSize: isMobile ? 19 : 23, fontWeight: 700, color: "#0a3d2e", margin: 0 }}>Welcome to the Inbox Cleanup Agent</h2>
             </div>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "#5C3D2E", margin: "0 0 22px", lineHeight: 1.5, textAlign: "center", whiteSpace: "nowrap" }}>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "#5C3D2E", margin: "0 0 22px", lineHeight: 1.5, textAlign: "center", whiteSpace: isMobile ? "normal" : "nowrap" }}>
               Your inbox is a mess. We both know it. Let's fix that in three painless steps:
             </p>
 
@@ -150,8 +157,8 @@ export default function App() {
       )}
 
       {/* Sidebar */}
-      <div style={{ width: 300, background: "#0a3d2e", display: "flex", flexDirection: "column", padding: "28px 16px", flexShrink: 0 }}>
-        <div style={{ fontSize: 30, fontWeight: 700, color: "#fff", lineHeight: "1.2", marginBottom: 8, textAlign: "center" }}>Inbox<br/>Cleanup<br/>Agent</div>
+      <div style={{ width: isMobile ? "100%" : 300, background: "#0a3d2e", display: "flex", flexDirection: "column", padding: "28px 16px", flexShrink: 0, boxSizing: "border-box" }}>
+        <div style={{ fontSize: isMobile ? 24 : 30, fontWeight: 700, color: "#fff", lineHeight: "1.2", marginBottom: 8, textAlign: "center" }}>{isMobile ? "Inbox Cleanup Agent" : <>Inbox<br/>Cleanup<br/>Agent</>}</div>
         <div style={{ fontSize: 11, color: "#5DCAA5", marginBottom: 32, display: "flex", alignItems: "center", gap: 5, justifyContent: "center" }}>
           <span style={{ width: 7, height: 7, borderRadius: "50%", background: authed ? "#5DCAA5" : "#888", display: "inline-block" }}></span>
           {authed ? "Gmail connected" : "Not connected"}
@@ -182,10 +189,10 @@ export default function App() {
       </div>
 
       {/* Main */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: isMobile ? "visible" : "hidden", minWidth: 0 }}>
 
         {/* Topbar */}
-        <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: "16px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+        <div style={{ background: "#fff", borderBottom: "1px solid #eee", padding: isMobile ? "14px 18px" : "16px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, flexWrap: "wrap", gap: 10 }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: "#111" }}>
             {activeTab === "All" ? "All senders" : activeTab}
           </div>
@@ -215,7 +222,7 @@ export default function App() {
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "24px 32px" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "18px 16px" : "24px 32px" }}>
 
           {isScanning && (
             <div style={{ background: "#fff", border: "1px solid #eee", borderRadius: 12, padding: "20px 22px", marginBottom: 16 }}>
@@ -247,7 +254,7 @@ export default function App() {
           {results && (
             <div>
               {/* Stat cards */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 12, marginBottom: 24 }}>
                 {[
                   { num: results.length, label: "Senders found", bg: "#fff", border: "#5DCAA5", numColor: "#0F6E56" },
                   { num: results.filter(s => s.recommendation === "unsubscribe").length, label: "To unsubscribe", bg: "#F5EBE0", border: "#C4956A", numColor: "#5C3D2E" },
