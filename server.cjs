@@ -17,8 +17,13 @@ const REDIRECT_URI = `${BASE_URL}/auth/callback`
 let accessToken = null
 
 app.get("/auth/login", (req, res) => {
-  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=https://www.googleapis.com/auth/gmail.readonly&access_type=offline`
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=https://www.googleapis.com/auth/gmail.readonly&access_type=offline&prompt=select_account`
   res.redirect(url)
+})
+
+app.post("/auth/logout", (req, res) => {
+  accessToken = null
+  res.json({ ok: true })
 })
 
 app.get("/auth/callback", async (req, res) => {

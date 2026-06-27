@@ -53,6 +53,14 @@ export default function App() {
     }
   }
 
+  async function signOut() {
+    await fetch("/auth/logout", { method: "POST" })
+    setAuthed(false)
+    setResults(null)
+    setError(null)
+    window.location.href = "/auth/login"
+  }
+
   function initials(name) {
     return name.split(" ").slice(0, 2).map(w => w[0]?.toUpperCase() || "").join("")
   }
@@ -155,13 +163,21 @@ export default function App() {
             {activeTab === "All" ? "All senders" : activeTab}
           </div>
           {authed ? (
-            <button
-              onClick={startScan}
-              disabled={isScanning}
-              style={{ fontSize: 16, padding: "12px 28px", borderRadius: 8, border: "none", background: isScanning ? "#ccc" : "#5C3D2E", color: "#fff", fontWeight: 600, cursor: isScanning ? "default" : "pointer", display: "flex", alignItems: "center", gap: 5 }}
-            >
-              {isScanning ? "Scanning..." : "↻  Scan Inbox"}
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <button
+                onClick={signOut}
+                style={{ fontSize: 14, padding: "12px 20px", borderRadius: 8, border: "1px solid #C4956A", background: "#fff", color: "#5C3D2E", fontWeight: 600, cursor: "pointer" }}
+              >
+                Sign out
+              </button>
+              <button
+                onClick={startScan}
+                disabled={isScanning}
+                style={{ fontSize: 16, padding: "12px 28px", borderRadius: 8, border: "none", background: isScanning ? "#ccc" : "#5C3D2E", color: "#fff", fontWeight: 600, cursor: isScanning ? "default" : "pointer", display: "flex", alignItems: "center", gap: 5 }}
+              >
+                {isScanning ? "Scanning..." : "↻  Scan Inbox"}
+              </button>
+            </div>
           ) : (
             <a href="/auth/login" style={{ textDecoration: "none" }}>
               <button style={{ fontSize: 14, padding: "12px 28px", borderRadius: 8, border: "none", background: "#5C3D2E", color: "#fff", fontWeight: 600, cursor: "pointer" }}>
