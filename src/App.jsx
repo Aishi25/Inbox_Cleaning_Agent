@@ -157,7 +157,7 @@ export default function App() {
           {authed ? "Gmail connected" : "Not connected"}
         </div>
 
-        <div style={{ fontSize: 10, color: "#5DCAA5", fontWeight: 600, letterSpacing: "0.8px", textTransform: "uppercase", marginBottom: 10 }}>Views</div>
+        <div style={{ fontSize: 10, color: "#5DCAA5", fontWeight: 600, letterSpacing: "0.8px", textTransform: "uppercase", marginBottom: 10 }}>Categories</div>
         {sidebarItems.map(item => {
           const count = results ? (item.key === "All" ? results.length : results.filter(s => s.category === item.key).length) : null
           const isActive = activeTab === item.key
@@ -261,30 +261,29 @@ export default function App() {
               </div>
 
               {/* Sender cards */}
-              <p style={{ fontSize: 11, color: "#5C3D2E", marginBottom: 12 }}>These are Claude's suggestions — nothing changes until you act.</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {filtered.map((s, i) => {
                   const cat = categoryColors[s.category] || { bg: "#f0f0f0", color: "#555" }
                   const isUnsub = s.recommendation === "unsubscribe"
                   return (
-                    <div key={i} style={{ background: "#fff", border: "1px solid #ececec", borderRadius: 10, padding: "16px 20px", display: "flex", gap: 14, alignItems: "flex-start" }}>
-                      <div style={{ width: 36, height: 36, borderRadius: "50%", background: cat.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: cat.color, flexShrink: 0, marginTop: 2 }}>
+                    <div key={i} style={{ background: "#fff", border: "1px solid #ececec", borderRadius: 12, padding: "22px 26px", display: "flex", gap: 18, alignItems: "flex-start" }}>
+                      <div style={{ width: 46, height: 46, borderRadius: "50%", background: cat.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700, color: cat.color, flexShrink: 0, marginTop: 2 }}>
                         {initials(s.name)}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 3, flexWrap: "wrap" }}>
-                          <span style={{ fontWeight: 600, fontSize: 15, color: "#111" }}>{s.name}</span>
-                          <span style={{ fontSize: 11, padding: "2px 9px", borderRadius: 99, background: cat.bg, color: cat.color, fontWeight: 500 }}>{s.category}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 7, flexWrap: "wrap" }}>
+                          <span style={{ fontWeight: 600, fontSize: 17, color: "#111" }}>{s.name}</span>
+                          <span style={{ fontSize: 12, padding: "3px 11px", borderRadius: 99, background: cat.bg, color: cat.color, fontWeight: 500 }}>{s.category}</span>
                           <span
                             onClick={() => {
                               if (isUnsub && s.gmailUrl) window.open(s.gmailUrl, "_blank")
                             }}
-                            style={{ fontSize: 11, padding: "2px 9px", borderRadius: 99, background: isUnsub ? "#167458" : "#EAF3DE", color: isUnsub ? "#fff" : "#27500A", fontWeight: 600, cursor: isUnsub ? "pointer" : "default" }}
+                            style={{ fontSize: 12, padding: "3px 11px", borderRadius: 99, background: isUnsub ? "#167458" : "#EAF3DE", color: isUnsub ? "#fff" : "#27500A", fontWeight: 600, cursor: isUnsub ? "pointer" : "default" }}
                           >
                             {isUnsub ? "✉ Open in Gmail" : "✓ Keep"}
                           </span>
                         </div>
-                        <div style={{ fontSize: 13, color: "#5C3D2E" }}>{s.email} · {s.emailCount} email{s.emailCount !== 1 ? "s" : ""} · {s.reason}</div>
+                        <div style={{ fontSize: 14, color: "#5C3D2E", lineHeight: 1.5 }}>{s.email} · {s.emailCount} email{s.emailCount !== 1 ? "s" : ""} · {s.reason}</div>
                       </div>
                     </div>
                   )
