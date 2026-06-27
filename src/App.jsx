@@ -253,7 +253,7 @@ export default function App() {
               </div>
             </div>
           )}
-          {error && <p style={{ color: "#5C3D2E", fontSize: 13 }}>Something went wrong: {error}</p>}
+          {error && <p style={{ color: "#5C3D2E", fontSize: 14, fontWeight: 500 }}>Uh oh! An error has occurred. Please try again.</p>}
 
           {results && (
             <div>
