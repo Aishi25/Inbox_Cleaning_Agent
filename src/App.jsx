@@ -4,18 +4,18 @@ export default function App() {
   const [isScanning, setIsScanning] = useState(false)
   const [results, setResults] = useState(null)
   const [error, setError] = useState(null)
-  const [loadingMsg, setLoadingMsg] = useState("")
   const [authed, setAuthed] = useState(false)
   const [activeTab, setActiveTab] = useState("All")
   const [showWelcome, setShowWelcome] = useState(false)
   const [welcomeClosing, setWelcomeClosing] = useState(false)
+  const [scanStage, setScanStage] = useState(0)
 
-  const loadingMsgs = [
-    "Connecting to Gmail...",
-    "Fetching your recent emails...",
-    "Claude is reading through senders...",
-    "Spotting subscriptions...",
-    "Almost done..."
+  const scanStages = [
+    "Connecting to Gmail",
+    "Fetching your recent emails",
+    "Claude is reading through senders",
+    "Spotting subscriptions",
+    "Wrapping up"
   ]
 
   useEffect(() => {
@@ -31,12 +31,11 @@ export default function App() {
     setIsScanning(true)
     setError(null)
     setResults(null)
-    let msgIdx = 0
-    setLoadingMsg(loadingMsgs[0])
+    setScanStage(0)
+    // Advance through stages on a timer, holding at the last one until the request resolves
     const interval = setInterval(() => {
-      msgIdx = (msgIdx + 1) % loadingMsgs.length
-      setLoadingMsg(loadingMsgs[msgIdx])
-    }, 2500)
+      setScanStage(s => (s < scanStages.length - 1 ? s + 1 : s))
+    }, 1600)
     try {
       const response = await fetch("/scan", {
         method: "POST",
@@ -45,6 +44,7 @@ export default function App() {
       if (!response.ok) throw new Error("Server error " + response.status)
       const data = await response.json()
       if (data.error) throw new Error(data.error)
+      setScanStage(scanStages.length)
       setResults(data.senders || [])
     } catch (err) {
       setError(err.message)
@@ -218,8 +218,28 @@ export default function App() {
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 32px" }}>
 
           {isScanning && (
-            <div style={{ background: "#fff", border: "1px solid #eee", borderRadius: 10, padding: "14px 18px", marginBottom: 16, fontSize: 13, color: "#555" }}>
-              {loadingMsg}
+            <div style={{ background: "#fff", border: "1px solid #eee", borderRadius: 12, padding: "20px 22px", marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#0a3d2e" }}>
+                  {scanStages[Math.min(scanStage, scanStages.length - 1)]}…
+                </span>
+                <span style={{ fontSize: 13, color: "#5C3D2E" }}>
+                  {Math.round((scanStage / scanStages.length) * 100)}%
+                </span>
+              </div>
+              <div style={{ height: 8, background: "#EAF0EC", borderRadius: 99, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${(scanStage / scanStages.length) * 100}%`, background: "#1D9E75", borderRadius: 99, transition: "width 0.5s ease" }} />
+              </div>
+              <div style={{ display: "flex", gap: 6, marginTop: 12 }}>
+                {scanStages.map((label, i) => (
+                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+                    <div style={{ width: 14, height: 14, borderRadius: "50%", background: i < scanStage ? "#1D9E75" : "#EAF0EC", color: "#fff", fontSize: 9, display: "flex", alignItems: "center", justifyContent: "center", border: i === scanStage ? "2px solid #1D9E75" : "none", boxSizing: "border-box" }}>
+                      {i < scanStage ? "✓" : ""}
+                    </div>
+                    <span style={{ fontSize: 9.5, color: i <= scanStage ? "#0a3d2e" : "#aaa", textAlign: "center", lineHeight: 1.2 }}>{label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
           {error && <p style={{ color: "#5C3D2E", fontSize: 13 }}>Something went wrong: {error}</p>}
