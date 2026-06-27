@@ -15,16 +15,39 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 const REDIRECT_URI = `${BASE_URL}/auth/callback`
 
 let accessToken = null
+let refreshToken = null
 
 app.get("/auth/login", (req, res) => {
-  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=https://www.googleapis.com/auth/gmail.readonly&access_type=offline&prompt=select_account`
+  // prompt=consent ensures Google returns a refresh_token so we can renew access without re-login
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=https://www.googleapis.com/auth/gmail.readonly&access_type=offline&prompt=${encodeURIComponent("select_account consent")}`
   res.redirect(url)
 })
 
 app.post("/auth/logout", (req, res) => {
   accessToken = null
+  refreshToken = null
   res.json({ ok: true })
 })
+
+async function refreshAccessToken() {
+  if (!refreshToken) return false
+  const r = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: GOOGLE_CLIENT_ID,
+      client_secret: GOOGLE_CLIENT_SECRET,
+      refresh_token: refreshToken,
+      grant_type: "refresh_token"
+    })
+  })
+  const data = await r.json()
+  if (data.access_token) {
+    accessToken = data.access_token
+    return true
+  }
+  return false
+}
 
 app.get("/auth/callback", async (req, res) => {
   const code = req.query.code
@@ -41,6 +64,7 @@ app.get("/auth/callback", async (req, res) => {
   })
   const tokenData = await tokenRes.json()
   accessToken = tokenData.access_token
+  if (tokenData.refresh_token) refreshToken = tokenData.refresh_token
   res.redirect(`${BASE_URL}/?authed=true`)
 })
 
@@ -65,9 +89,15 @@ app.post("/scan", async (req, res) => {
       accountEmail = profData.emailAddress || ""
     } catch { /* fall back to no authuser */ }
 
-    const listRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=100", {
+    let listRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=100", {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
+    // Access token likely expired — refresh it and retry once
+    if (listRes.status === 401 && await refreshAccessToken()) {
+      listRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=100", {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      })
+    }
     const listData = await listRes.json()
     const messageIds = listData.messages || []
     console.log("Total messages fetched:", messageIds.length) //new
