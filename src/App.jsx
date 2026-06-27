@@ -59,7 +59,7 @@ export default function App() {
     setTimeout(() => {
       setShowWelcome(false)
       setWelcomeClosing(false)
-    }, 600)
+    }, 1100)
   }
 
   async function signOut() {
@@ -98,14 +98,14 @@ export default function App() {
       {showWelcome && (
         <div
           onClick={dismissWelcome}
-          style={{ position: "fixed", inset: 0, background: "rgba(10, 61, 46, 0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20, animation: welcomeClosing ? "overlayOut 0.6s forwards" : "none" }}
+          style={{ position: "fixed", inset: 0, background: "rgba(10, 61, 46, 0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20, animation: welcomeClosing ? "overlayOut 1.1s forwards" : "none" }}
         >
           <style>{`
             @keyframes overlayOut { to { opacity: 0; } }
-            @keyframes sparkleAway { 0% { transform: scale(1) rotate(0deg); opacity: 1; } 35% { transform: scale(0.45) rotate(160deg); opacity: 1; } 100% { transform: scale(0) rotate(720deg); opacity: 0; } }
+            @keyframes sparkleAway { 0% { transform: scale(1) rotate(0deg); opacity: 1; } 45% { transform: scale(0.55) rotate(220deg); opacity: 1; } 100% { transform: scale(0) rotate(720deg); opacity: 0; } }
           `}</style>
           {welcomeClosing ? (
-            <div style={{ animation: "sparkleAway 0.6s forwards" }}>
+            <div style={{ animation: "sparkleAway 1.1s forwards" }}>
               <svg width="90" height="90" viewBox="0 0 96 96">
                 <path d="M48,6 L57,39 L90,48 L57,57 L48,90 L39,57 L6,48 L39,39 Z" fill="#5DCAA5"/>
               </svg>
@@ -200,7 +200,7 @@ export default function App() {
               <button
                 onClick={startScan}
                 disabled={isScanning}
-                style={{ fontSize: 16, padding: "12px 28px", borderRadius: 8, border: "none", background: isScanning ? "#ccc" : "#5C3D2E", color: "#fff", fontWeight: 600, cursor: isScanning ? "default" : "pointer", display: "flex", alignItems: "center", gap: 5 }}
+                style={{ fontSize: 14, padding: "12px 20px", borderRadius: 8, border: "none", background: isScanning ? "#ccc" : "#5C3D2E", color: "#fff", fontWeight: 600, cursor: isScanning ? "default" : "pointer", display: "flex", alignItems: "center", gap: 5 }}
               >
                 {isScanning ? "Scanning..." : "↻  Scan Inbox"}
               </button>
