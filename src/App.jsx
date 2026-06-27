@@ -111,7 +111,7 @@ export default function App() {
   const tabs = ["All", "Newsletters", "Marketing & promos", "Social"]
   const byCategory = activeTab === "All" ? (results || []) : (results || []).filter(s => s.category === activeTab)
   const q = search.trim().toLowerCase()
-  const filtered = q ? byCategory.filter(s => (s.name || "").toLowerCase().includes(q) || (s.email || "").toLowerCase().includes(q)) : byCategory
+  const filtered = q ? byCategory.filter(s => (s.name || "").toLowerCase().includes(q)) : byCategory
 
   const sidebarItems = [
     { label: "All senders", key: "All" },
