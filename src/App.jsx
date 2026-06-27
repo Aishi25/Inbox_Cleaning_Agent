@@ -291,8 +291,8 @@ export default function App() {
                   type="text"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  placeholder="🔍  Search senders…"
-                  style={{ marginLeft: isMobile ? 0 : "auto", flex: isMobile ? "1 1 100%" : "0 1 260px", fontSize: 15, padding: "13px 18px", borderRadius: 10, border: "1px solid #ddd", outline: "none", color: "#333", background: "#fff", boxSizing: "border-box" }}
+                  placeholder="👤  Search senders…"
+                  style={{ marginLeft: isMobile ? 0 : "auto", flex: isMobile ? "1 1 100%" : "0 1 360px", fontSize: 17, padding: "18px 24px", borderRadius: 12, border: "1px solid #ddd", outline: "none", color: "#333", background: "#fff", boxSizing: "border-box" }}
                 />
               </div>
 
