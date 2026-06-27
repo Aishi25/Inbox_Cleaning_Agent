@@ -303,16 +303,10 @@ export default function App() {
           )}
 
           {!results && !isScanning && (
-            <div style={{ position: "relative", minHeight: "70vh", textAlign: "center", color: "#7a5c4e" }}>
-              <img
-                src="/favicon.svg"
-                alt=""
-                style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "min(460px, 55%)", maxHeight: "65%", opacity: 0.07, pointerEvents: "none", zIndex: 0 }}
-              />
-              <div style={{ position: "absolute", top: "62%", left: "50%", transform: "translateX(-50%)", zIndex: 1, maxWidth: 360, width: "80%" }}>
-                <div style={{ fontSize: 30, marginBottom: 10 }}>📬</div>
-                <div style={{ fontSize: 15, fontWeight: 500, color: "#555" }}>Sign in with Google and scan your inbox to find subscriptions you can cut.</div>
-              </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "70vh", textAlign: "center", color: "#7a5c4e" }}>
+              <img src="/favicon.svg" alt="" style={{ width: 150, marginBottom: 24 }} />
+              <div style={{ fontSize: 19, fontWeight: 600, color: "#0a3d2e", marginBottom: 8 }}>Your inbox, decluttered</div>
+              <div style={{ fontSize: 15, fontWeight: 500, color: "#555", maxWidth: 360, lineHeight: 1.5 }}>Sign in with Google and scan your inbox to find subscriptions you can cut.</div>
             </div>
           )}
         </div>
