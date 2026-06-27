@@ -10,6 +10,7 @@ export default function App() {
   const [welcomeClosing, setWelcomeClosing] = useState(false)
   const [scanStage, setScanStage] = useState(0)
   const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth < 760)
+  const [search, setSearch] = useState("")
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 760)
@@ -108,7 +109,9 @@ export default function App() {
   }
 
   const tabs = ["All", "Newsletters", "Marketing & promos", "Social"]
-  const filtered = activeTab === "All" ? (results || []) : (results || []).filter(s => s.category === activeTab)
+  const byCategory = activeTab === "All" ? (results || []) : (results || []).filter(s => s.category === activeTab)
+  const q = search.trim().toLowerCase()
+  const filtered = q ? byCategory.filter(s => (s.name || "").toLowerCase().includes(q) || (s.email || "").toLowerCase().includes(q)) : byCategory
 
   const sidebarItems = [
     { label: "All senders", key: "All" },
@@ -272,8 +275,8 @@ export default function App() {
 
           {results && (
             <div>
-              {/* Stat chips */}
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 24 }}>
+              {/* Stat chips + search */}
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 24 }}>
                 {[
                   { icon: "📨", num: results.length, label: "senders found", bg: "#E1F5EE", color: "#0F6E56" },
                   { icon: "✂️", num: results.filter(s => s.recommendation === "unsubscribe").length, label: "to unsubscribe", bg: "#F5EBE0", color: "#5C3D2E" },
@@ -284,10 +287,20 @@ export default function App() {
                     <span style={{ fontSize: 19, color }}><b style={{ fontSize: 22 }}>{num}</b> {label}</span>
                   </div>
                 ))}
+                <input
+                  type="text"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="🔍  Search senders…"
+                  style={{ marginLeft: isMobile ? 0 : "auto", flex: isMobile ? "1 1 100%" : "0 1 260px", fontSize: 15, padding: "13px 18px", borderRadius: 10, border: "1px solid #ddd", outline: "none", color: "#333", background: "#fff", boxSizing: "border-box" }}
+                />
               </div>
 
               {/* Sender cards */}
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {filtered.length === 0 && (
+                  <div style={{ textAlign: "center", color: "#999", fontSize: 14, padding: "30px 0" }}>No senders match “{search}”.</div>
+                )}
                 {filtered.map((s, i) => {
                   const cat = categoryColors[s.category] || { bg: "#f0f0f0", color: "#555" }
                   const isUnsub = s.recommendation === "unsubscribe"
