@@ -56,18 +56,16 @@ export default function App() {
   const categoryColors = {
     "Newsletters":        { bg: "#E6F1FB", color: "#0C447C" },
     "Marketing & promos": { bg: "#FAEEDA", color: "#633806" },
-    "Product updates":    { bg: "#EEEDFE", color: "#3C3489" },
     "Social":             { bg: "#E1F5EE", color: "#085041" },
   }
 
-  const tabs = ["All", "Newsletters", "Marketing & promos", "Product updates", "Social"]
+  const tabs = ["All", "Newsletters", "Marketing & promos", "Social"]
   const filtered = activeTab === "All" ? (results || []) : (results || []).filter(s => s.category === activeTab)
 
   const sidebarItems = [
     { label: "All senders", key: "All" },
     { label: "Newsletters", key: "Newsletters" },
     { label: "Marketing & promos", key: "Marketing & promos" },
-    { label: "Product updates", key: "Product updates" },
     { label: "Social", key: "Social" },
   ]
 
