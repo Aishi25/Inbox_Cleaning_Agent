@@ -257,16 +257,16 @@ export default function App() {
 
           {results && (
             <div>
-              {/* Stat cards */}
-              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 12, marginBottom: 24 }}>
+              {/* Stat chips */}
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 24 }}>
                 {[
-                  { num: results.length, label: "Senders found", bg: "#fff", border: "#5DCAA5", numColor: "#0F6E56" },
-                  { num: results.filter(s => s.recommendation === "unsubscribe").length, label: "To unsubscribe", bg: "#F5EBE0", border: "#C4956A", numColor: "#5C3D2E" },
-                  { num: results.reduce((acc, s) => acc + (s.emailCount || 0), 0), label: "Total emails scanned", bg: "#fff", border: "#e8e8e8", numColor: "#111" }
-                ].map(({ num, label, bg, border, numColor }) => (
-                  <div key={label} style={{ background: bg, border: `1px solid ${border}`, borderRadius: 10, padding: "16px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                    <div style={{ fontSize: 38, fontWeight: 700, color: numColor }}>{num}</div>
-                    <div style={{ fontSize: 15, color: "#5C3D2E", textAlign: "right" }}>{label}</div>
+                  { icon: "📨", num: results.length, label: "senders found", bg: "#E1F5EE", color: "#0F6E56" },
+                  { icon: "✂️", num: results.filter(s => s.recommendation === "unsubscribe").length, label: "to unsubscribe", bg: "#F5EBE0", color: "#5C3D2E" },
+                  { icon: "🔍", num: results.reduce((acc, s) => acc + (s.emailCount || 0), 0), label: "emails scanned", bg: "#F1EFE8", color: "#444441" }
+                ].map(({ icon, num, label, bg, color }) => (
+                  <div key={label} style={{ display: "flex", alignItems: "center", gap: 10, background: bg, borderRadius: 99, padding: "10px 18px" }}>
+                    <span style={{ fontSize: 18 }}>{icon}</span>
+                    <span style={{ fontSize: 14, color }}><b>{num}</b> {label}</span>
                   </div>
                 ))}
               </div>
