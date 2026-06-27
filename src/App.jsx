@@ -126,7 +126,7 @@ export default function App() {
             {[
               { t: "Connect your Google account", d: "" },
               { t: "Hit \"Scan inbox\" to locate senders", d: "" },
-              { t: "Hit \"Unsubscribe\" to investigate", d: "We'll whisk you to that sender's latest email so YOU can decide if it deserves the boot. No regrets, no accidental goodbyes." },
+              { t: "Hit \"Open in Gmail\" to investigate", d: "We'll whisk you to that sender's latest email so YOU can decide if it deserves the boot. No regrets, no accidental goodbyes." },
             ].map((step, i) => (
               <div key={i} style={{ display: "flex", gap: 13, marginBottom: 16, alignItems: "flex-start", textAlign: "left" }}>
                 <div style={{ flexShrink: 0, width: 26, height: 26, borderRadius: "50%", background: "#0a3d2e", color: "#5DCAA5", fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</div>
