@@ -293,7 +293,7 @@ export default function App() {
                         disabled={!isUnsub}
                         style={{ flexShrink: 0, fontSize: 14, fontWeight: 600, padding: "11px 20px", borderRadius: 9, border: "none", background: isUnsub ? "#167458" : "#EAF3DE", color: isUnsub ? "#fff" : "#27500A", cursor: isUnsub ? "pointer" : "default", whiteSpace: "nowrap", width: isMobile ? "100%" : "auto" }}
                       >
-                        {isUnsub ? <><span style={{ fontSize: 17, verticalAlign: "-1px" }}>✉</span> Open in Gmail</> : "✓ Keep"}
+                        {isUnsub ? <><span style={{ fontSize: 20, verticalAlign: "-2px", marginRight: 2 }}>✉️</span> Open in Gmail</> : "✓ Keep"}
                       </button>
                     </div>
                   )
