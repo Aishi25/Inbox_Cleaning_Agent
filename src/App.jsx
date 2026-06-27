@@ -303,9 +303,16 @@ export default function App() {
           )}
 
           {!results && !isScanning && (
-            <div style={{ textAlign: "center", marginTop: 80, color: "#7a5c4e" }}>
-              <div style={{ fontSize: 32, marginBottom: 12 }}>📬</div>
-              <div style={{ fontSize: 15, fontWeight: 500, color: "#555" }}>Sign in with Google and scan your inbox to find subscriptions you can cut.</div>
+            <div style={{ position: "relative", textAlign: "center", marginTop: 100, color: "#7a5c4e" }}>
+              <img
+                src="/favicon.svg"
+                alt=""
+                style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 320, opacity: 0.06, pointerEvents: "none", zIndex: 0 }}
+              />
+              <div style={{ position: "relative", zIndex: 1 }}>
+                <div style={{ fontSize: 32, marginBottom: 12 }}>📬</div>
+                <div style={{ fontSize: 15, fontWeight: 500, color: "#555" }}>Sign in with Google and scan your inbox to find subscriptions you can cut.</div>
+              </div>
             </div>
           )}
         </div>
