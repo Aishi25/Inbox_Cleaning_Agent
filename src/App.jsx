@@ -8,6 +8,7 @@ export default function App() {
   const [authed, setAuthed] = useState(false)
   const [activeTab, setActiveTab] = useState("All")
   const [showWelcome, setShowWelcome] = useState(false)
+  const [welcomeClosing, setWelcomeClosing] = useState(false)
 
   const loadingMsgs = [
     "Connecting to Gmail...",
@@ -53,6 +54,14 @@ export default function App() {
     }
   }
 
+  function dismissWelcome() {
+    setWelcomeClosing(true)
+    setTimeout(() => {
+      setShowWelcome(false)
+      setWelcomeClosing(false)
+    }, 600)
+  }
+
   async function signOut() {
     await fetch("/auth/logout", { method: "POST" })
     setAuthed(false)
@@ -87,22 +96,35 @@ export default function App() {
       {/* Welcome modal */}
       {showWelcome && (
         <div
-          onClick={() => setShowWelcome(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(10, 61, 46, 0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20 }}
+          onClick={dismissWelcome}
+          style={{ position: "fixed", inset: 0, background: "rgba(10, 61, 46, 0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20, animation: welcomeClosing ? "overlayOut 0.6s forwards" : "none" }}
         >
+          <style>{`
+            @keyframes overlayOut { to { opacity: 0; } }
+            @keyframes sparkleAway { 0% { transform: scale(1) rotate(0deg); opacity: 1; } 35% { transform: scale(0.45) rotate(160deg); opacity: 1; } 100% { transform: scale(0) rotate(720deg); opacity: 0; } }
+          `}</style>
+          {welcomeClosing ? (
+            <div style={{ animation: "sparkleAway 0.6s forwards" }}>
+              <svg width="90" height="90" viewBox="0 0 96 96">
+                <path d="M48,6 L57,39 L90,48 L57,57 L48,90 L39,57 L6,48 L39,39 Z" fill="#5DCAA5"/>
+              </svg>
+            </div>
+          ) : (
           <div
             onClick={e => e.stopPropagation()}
             style={{ background: "#fff", borderRadius: 18, maxWidth: 640, width: "100%", padding: "32px 34px 24px", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}
           >
-            <img src="/favicon.svg" alt="" width="46" height="46" style={{ display: "block", marginBottom: 10 }} />
-            <h2 style={{ fontSize: 23, fontWeight: 700, color: "#0a3d2e", margin: "0 0 6px" }}>Welcome to the Inbox Cleanup Agent</h2>
-            <p style={{ fontSize: 14, color: "#5C3D2E", margin: "0 0 22px", lineHeight: 1.5, whiteSpace: "nowrap" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 8 }}>
+              <img src="/favicon.svg" alt="" width="42" height="42" />
+              <h2 style={{ fontSize: 23, fontWeight: 700, color: "#0a3d2e", margin: 0 }}>Welcome to the Inbox Cleanup Agent</h2>
+            </div>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "#5C3D2E", margin: "0 0 22px", lineHeight: 1.5, textAlign: "center", whiteSpace: "nowrap" }}>
               Your inbox is a mess. We both know it. Let's fix that in three painless steps:
             </p>
 
             {[
               { t: "Connect your Google account", d: "" },
-              { t: "Scan your inbox", d: "" },
+              { t: "Hit \"Scan inbox\" to locate senders", d: "" },
               { t: "Hit \"Unsubscribe\" to investigate", d: "We'll whisk you to that sender's latest email so YOU can decide if it deserves the boot. No regrets, no accidental goodbyes." },
             ].map((step, i) => (
               <div key={i} style={{ display: "flex", gap: 13, marginBottom: 16, alignItems: "flex-start", textAlign: "left" }}>
@@ -115,13 +137,14 @@ export default function App() {
             ))}
 
             <button
-              onClick={() => setShowWelcome(false)}
+              onClick={dismissWelcome}
               style={{ width: "100%", marginTop: 8, fontSize: 15, fontWeight: 600, padding: "13px", borderRadius: 10, border: "none", background: "#5C3D2E", color: "#fff", cursor: "pointer" }}
             >
               Got it!
             </button>
             <div style={{ textAlign: "center", fontSize: 12, fontWeight: 600, color: "#5C3D2E", marginTop: 14 }}>Tool created by Aishi Agarwal</div>
           </div>
+          )}
         </div>
       )}
 
