@@ -49,6 +49,17 @@ app.post("/scan", async (req, res) => {
     return res.status(401).json({ error: "Not authenticated. Please log in first." })
   }
   try {
+    // Which Google account authorized this scan — used to pin Gmail deep links to the
+    // right mailbox (so they don't open Chrome's default /u/0 account instead).
+    let accountEmail = ""
+    try {
+      const profRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/profile", {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      })
+      const profData = await profRes.json()
+      accountEmail = profData.emailAddress || ""
+    } catch { /* fall back to no authuser */ }
+
     const listRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=100", {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
@@ -101,13 +112,15 @@ app.post("/scan", async (req, res) => {
 
     const parsed = JSON.parse(textBlock.text.replace(/```json|```/g, "").trim())
 
-    // Deep-link to the most recent email from each sender in Gmail
+    // Deep-link to the most recent email from each sender in Gmail.
+    // authuser pins the link to the scanned account, not Chrome's default /u/0 account.
+    const authParam = accountEmail ? `?authuser=${encodeURIComponent(accountEmail)}` : ""
     for (const sender of parsed.senders || []) {
       const key = sender.email.toLowerCase()
       const msgId = senderMsgMap[key]
       sender.gmailUrl = msgId
-        ? `https://mail.google.com/mail/u/0/#inbox/${msgId}`
-        : `https://mail.google.com/mail/u/0/#search/from%3A${encodeURIComponent(sender.email)}`
+        ? `https://mail.google.com/mail/u/0/${authParam}#inbox/${msgId}`
+        : `https://mail.google.com/mail/u/0/${authParam}#search/from%3A${encodeURIComponent(sender.email)}`
     }
 
     res.json(parsed)
