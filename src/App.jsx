@@ -305,8 +305,7 @@ export default function App() {
           {!results && !isScanning && (
             <div style={{ textAlign: "center", marginTop: 80, color: "#7a5c4e" }}>
               <div style={{ fontSize: 32, marginBottom: 12 }}>📬</div>
-              <div style={{ fontSize: 15, fontWeight: 500, color: "#555", marginBottom: 6 }}>No scan yet</div>
-              <div style={{ fontSize: 13 }}>Hit "Scan inbox" to find subscriptions you can cut.</div>
+              <div style={{ fontSize: 15, fontWeight: 500, color: "#555" }}>Sign in with Google and scan your inbox to find subscriptions you can cut.</div>
             </div>
           )}
         </div>
