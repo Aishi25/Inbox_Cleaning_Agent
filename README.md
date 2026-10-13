@@ -9,7 +9,7 @@ An AI-powered inbox cleanup tool that scans your Gmail and identifies subscripti
 - Uses Claude AI (Anthropic) to decide which senders are subscriptions and categorize them
 - Counts emails per sender in code, so the numbers are exact
 - Shows a list of suggested unsubscribes with reasoning
-- You stay in full control — nothing happens without your approval
+- You stay in full control, nothing happens without your approval
 
 ## Tech stack
 
@@ -54,4 +54,4 @@ src/
 - How to build a full-stack React + Node.js app from scratch
 - How Google OAuth 2.0 works and how to implement it
 - How to call the Anthropic Claude API from a backend server
-- How AI agents work — the app acts as an agent that reads your data and reasons about it
+- How AI agents work: the app acts as an agent that reads your data and reasons about it
