@@ -89,12 +89,14 @@ app.post("/scan", async (req, res) => {
       accountEmail = profData.emailAddress || ""
     } catch { /* fall back to no authuser */ }
 
-    let listRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=100", {
+    // labelIds=INBOX so we only scan the inbox, not sent/archived mail
+    const listUrl = "https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=100&labelIds=INBOX"
+    let listRes = await fetch(listUrl, {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
     // Access token likely expired — refresh it and retry once
     if (listRes.status === 401 && await refreshAccessToken()) {
-      listRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=100", {
+      listRes = await fetch(listUrl, {
         headers: { Authorization: `Bearer ${accessToken}` }
       })
     }
@@ -114,12 +116,16 @@ app.post("/scan", async (req, res) => {
       })
     )
 
-    // Build a map of sender email -> one message id (to later fetch body for unsubscribe link)
+    // Group emails by sender address: remember one message id per sender (for the Gmail link)
+    // and count how many emails each sender sent. Counting here keeps the numbers exact —
+    // Claude only decides which senders are subscriptions.
     const senderMsgMap = {}
+    const senderCounts = {}
     for (const e of emails) {
       const emailMatch = e.from.match(/<([^>]+)>/) || e.from.match(/(\S+@\S+)/)
       const senderEmail = emailMatch ? emailMatch[1].toLowerCase() : e.from.toLowerCase()
       if (!senderMsgMap[senderEmail]) senderMsgMap[senderEmail] = e.id
+      senderCounts[senderEmail] = (senderCounts[senderEmail] || 0) + 1
     }
 
     const emailSummary = emails.map(e => `From: ${e.from} | Subject: ${e.subject}`).join("\n")
@@ -134,6 +140,7 @@ app.post("/scan", async (req, res) => {
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
         max_tokens: 8192,
+        temperature: 0, // same emails in -> same answer out, as much as possible
         system: "You are an inbox cleanup assistant. Analyze the list of emails and identify which senders look like subscriptions, newsletters, or marketing emails the user probably doesn't need. Respond ONLY with a valid JSON object, no preamble, no markdown: {\"senders\": [{\"name\": \"Sender name\", \"email\": \"sender@example.com\", \"category\": \"Newsletters\", \"emailCount\": 5, \"recommendation\": \"unsubscribe\", \"reason\": \"One short sentence\"}]}. Only include subscription/automated senders, not personal or work emails. Include EVERY subscription/automated sender you find, ranked by most emails first (do not truncate the list). For the category field, you MUST use exactly one of these values: 'Newsletters', 'Marketing & promos', 'Social'.",
         messages: [{ role: "user", content: `Here are the emails from my inbox:\n\n${emailSummary}\n\nWhich senders should I unsubscribe from?` }]
       })
@@ -156,9 +163,12 @@ app.post("/scan", async (req, res) => {
       sender.gmailUrl = msgId
         ? `https://mail.google.com/mail/u/0/${authParam}#inbox/${msgId}`
         : `https://mail.google.com/mail/u/0/${authParam}#search/from%3A${encodeURIComponent(sender.email)}`
+      // Replace Claude's estimated count with our real one (keep Claude's only if the address didn't match)
+      if (senderCounts[key]) sender.emailCount = senderCounts[key]
     }
+    parsed.senders = (parsed.senders || []).sort((a, b) => (b.emailCount || 0) - (a.emailCount || 0))
 
-    res.json(parsed)
+    res.json({ ...parsed, totalScanned: emails.length })
   } catch (err) {
     console.log("Error:", err.message)
     res.status(500).json({ error: err.message })

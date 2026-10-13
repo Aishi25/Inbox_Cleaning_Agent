@@ -11,6 +11,7 @@ export default function App() {
   const [scanStage, setScanStage] = useState(0)
   const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth < 760)
   const [search, setSearch] = useState("")
+  const [totalScanned, setTotalScanned] = useState(0)
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 760)
@@ -64,6 +65,7 @@ export default function App() {
       if (data.error) throw new Error(data.error)
       setScanStage(scanStages.length)
       setResults(data.senders || [])
+      setTotalScanned(data.totalScanned || 0)
     } catch (err) {
       if (err.name !== "AbortError") setError(err.message)
     } finally {
@@ -280,7 +282,7 @@ export default function App() {
                 {[
                   { icon: "📨", num: results.length, label: "senders found", bg: "#E1F5EE", color: "#0F6E56" },
                   { icon: "✂️", num: results.filter(s => s.recommendation === "unsubscribe").length, label: "to unsubscribe", bg: "#F5EBE0", color: "#5C3D2E" },
-                  { icon: "🔍", num: results.reduce((acc, s) => acc + (s.emailCount || 0), 0), label: "emails scanned", bg: "#F1EFE8", color: "#444441" }
+                  { icon: "🔍", num: totalScanned, label: "emails scanned", bg: "#F1EFE8", color: "#444441" }
                 ].map(({ icon, num, label, bg, color }) => (
                   <div key={label} style={{ display: "flex", alignItems: "center", gap: 14, background: bg, borderRadius: 99, padding: "16px 30px" }}>
                     <span style={{ fontSize: 28 }}>{icon}</span>
