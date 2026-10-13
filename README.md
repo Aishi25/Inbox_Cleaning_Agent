@@ -5,8 +5,9 @@ An AI-powered inbox cleanup tool that scans your Gmail and identifies subscripti
 ## What it does
 
 - Connects to your Gmail via Google OAuth
-- Fetches your 30 most recent emails
-- Uses Claude AI (Anthropic) to analyze senders and categorize them
+- Fetches your 100 most recent inbox emails (sender + subject only, read-only access)
+- Uses Claude AI (Anthropic) to decide which senders are subscriptions and categorize them
+- Counts emails per sender in code, so the numbers are exact
 - Shows a list of suggested unsubscribes with reasoning
 - You stay in full control — nothing happens without your approval
 
@@ -28,9 +29,25 @@ ANTHROPIC_API_KEY=your-key
 GOOGLE_CLIENT_ID=your-client-id
 GOOGLE_CLIENT_SECRET=your-client-secret
 
-4. Terminal 1: `npm run dev`
-5. Terminal 2: `node server.cjs`
-6. Open `localhost:5173`, sign in with Google, and scan!
+4. `npm run build` (builds the React frontend into `dist/`)
+5. `node server.cjs` (serves the frontend and the API together)
+6. Open `localhost:3001`, sign in with Google, and scan!
+
+## Project structure
+
+```
+server.cjs              entry point: sets up Express and plugs in the routes
+server/
+  config.cjs            BASE_URL and PORT
+  auth.cjs              Google OAuth: login, callback, status, logout, token refresh
+  gmail.cjs             fetches recent inbox emails from the Gmail API
+  claude.cjs            asks Claude which senders are subscriptions
+  scan.cjs              /scan route: fetch -> count per sender -> classify -> respond
+src/
+  App.jsx               app state, scan logic, page layout
+  components/           WelcomeModal, Sidebar, TopBar, ScanProgress,
+                        ResultsSummary, SenderCard, EmptyState
+```
 
 ## What I learned
 
