@@ -281,7 +281,7 @@ export default function App() {
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 24 }}>
                 {[
                   { icon: "📨", num: results.length, label: "senders found", bg: "#E1F5EE", color: "#0F6E56" },
-                  { icon: "✂️", num: results.filter(s => s.recommendation === "unsubscribe").length, label: "to unsubscribe", bg: "#F5EBE0", color: "#5C3D2E" },
+                  { icon: "✂️", num: results.filter(s => s.recommendation === "unsubscribe").reduce((acc, s) => acc + (s.emailCount || 0), 0), label: "subscription emails", bg: "#F5EBE0", color: "#5C3D2E" },
                   { icon: "🔍", num: totalScanned, label: "emails scanned", bg: "#F1EFE8", color: "#444441" }
                 ].map(({ icon, num, label, bg, color }) => (
                   <div key={label} style={{ display: "flex", alignItems: "center", gap: 14, background: bg, borderRadius: 99, padding: "16px 30px" }}>
