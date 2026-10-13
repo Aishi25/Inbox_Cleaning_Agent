@@ -1,11 +1,13 @@
+// talks to the gmail api: gets the signed in account and the recent inbox emails
 const { getAccessToken, refreshAccessToken } = require("./auth.cjs")
 
+// every gmail request needs the access token in this header
 function authHeader() {
   return { Authorization: `Bearer ${getAccessToken()}` }
 }
 
-// Which Google account authorized this scan — used to pin Gmail deep links to the
-// right mailbox (so they don't open Chrome's default /u/0 account instead).
+// gets the email address of the signed in account
+// used later so "open in gmail" opens the right account if you're signed into more than one
 async function getAccountEmail() {
   try {
     const profRes = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/profile", {
@@ -14,15 +16,17 @@ async function getAccountEmail() {
     const profData = await profRes.json()
     return profData.emailAddress || ""
   } catch {
-    return "" // fall back to no authuser
+    // not a big deal if this fails, links just open the default account
+    return ""
   }
 }
 
 async function fetchRecentEmails() {
-  // labelIds=INBOX so we only scan the inbox, not sent/archived mail
+  // step 1: get the ids of the 100 newest emails in the inbox
+  // labelIds=INBOX skips sent, archived, spam and trash
   const listUrl = "https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=100&labelIds=INBOX"
   let listRes = await fetch(listUrl, { headers: authHeader() })
-  // Access token likely expired — refresh it and retry once
+  // 401 means the access token expired, so refresh it and try once more
   if (listRes.status === 401 && await refreshAccessToken()) {
     listRes = await fetch(listUrl, { headers: authHeader() })
   }
@@ -30,6 +34,9 @@ async function fetchRecentEmails() {
   const messageIds = listData.messages || []
   console.log("Total messages fetched:", messageIds.length)
 
+  // step 2: gmail only gives ids in the list, so fetch each email's details
+  // format=metadata + only From and Subject means we never download the email body (privacy)
+  // Promise.all runs all 100 requests at the same time instead of one by one
   return Promise.all(
     messageIds.slice(0, 100).map(async (msg) => {
       const msgRes = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject`, {
